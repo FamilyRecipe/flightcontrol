@@ -269,3 +269,15 @@ export class GitHubMCPClient {
 // Export a singleton instance
 export const githubMCPClient = new GitHubMCPClient()
 
+/**
+ * Create a user-specific MCP client instance
+ * Fetches user settings from database and falls back to env var if no setting exists
+ */
+export async function createUserMCPClient(): Promise<GitHubMCPClient> {
+  const { getUserSettings } = await import('@/lib/db/queries')
+  const settings = await getUserSettings()
+  
+  const baseUrl = settings?.github_mcp_server_url || process.env.GITHUB_MCP_SERVER_URL || ''
+  return new GitHubMCPClient(baseUrl)
+}
+

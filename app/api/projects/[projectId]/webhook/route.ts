@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProject, createCommit, createRepoSnapshot } from '@/lib/db/queries'
 import { verifyWebhookSignature, parseWebhookPayload, extractCommitsFromWebhook } from '@/lib/github/webhook'
-import { githubMCPClient } from '@/lib/github/mcp-client'
+import { createUserMCPClient } from '@/lib/github/mcp-client'
 import { RepoAnalyzer } from '@/lib/github/analyzer'
 
 export async function POST(
@@ -31,11 +31,12 @@ export async function POST(
     const commits = extractCommitsFromWebhook(payload)
 
     // Process each commit
+    const mcpClient = await createUserMCPClient()
     for (const commitData of commits) {
       // Get commit diff
       let diff: string | null = null
       try {
-        diff = await githubMCPClient.getCommitDiff(
+        diff = await mcpClient.getCommitDiff(
           project.github_repo_owner,
           project.github_repo_name,
           commitData.sha
@@ -59,7 +60,7 @@ export async function POST(
     // Create repo snapshot
     if (commits.length > 0 && !project.experimental_mode) {
       try {
-        const analyzer = new RepoAnalyzer(githubMCPClient)
+        const analyzer = new RepoAnalyzer(mcpClient)
         const analysis = await analyzer.analyze(
           project.github_repo_owner,
           project.github_repo_name,

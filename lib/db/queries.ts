@@ -67,6 +67,14 @@ export interface AlignmentCheck {
   created_at: string
 }
 
+export interface UserSettings {
+  id: string
+  user_id: string
+  github_mcp_server_url: string | null
+  created_at: string
+  updated_at: string
+}
+
 /**
  * Get all projects for the current user
  */
@@ -342,6 +350,56 @@ export async function createAlignmentCheck(
   const { data, error } = await supabase
     .from('alignment_checks')
     .insert(check)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+/**
+ * Get user settings
+ */
+export async function getUserSettings(): Promise<UserSettings | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) return null
+
+  const { data, error } = await supabase
+    .from('user_settings')
+    .select('*')
+    .eq('user_id', user.id)
+    .single()
+
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    throw error
+  }
+  return data
+}
+
+/**
+ * Create or update user settings
+ */
+export async function upsertUserSettings(settings: {
+  github_mcp_server_url?: string | null
+}): Promise<UserSettings> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    throw new Error('User not authenticated')
+  }
+
+  const { data, error } = await supabase
+    .from('user_settings')
+    .upsert({
+      user_id: user.id,
+      ...settings,
+    }, {
+      onConflict: 'user_id'
+    })
     .select()
     .single()
 

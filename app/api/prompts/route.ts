@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getProject, getProjectPlan, getPlanSteps, getLatestSnapshot } from '@/lib/db/queries'
 import { CursorPromptGenerator } from '@/lib/openai/prompt-generator'
 import { SnapshotManager } from '@/lib/alignment/snapshot-manager'
+import { createUserMCPClient } from '@/lib/github/mcp-client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +47,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Get snapshot for context
-    const snapshotManager = new SnapshotManager()
+    const mcpClient = await createUserMCPClient()
+    const snapshotManager = new SnapshotManager(mcpClient)
     const snapshot = await snapshotManager.getOrCreateSnapshot(project)
 
     // Generate prompt

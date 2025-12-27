@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { githubMCPClient } from '@/lib/github/mcp-client'
 import { useRouter } from 'next/navigation'
 
 interface GitHubRepo {
@@ -34,7 +33,12 @@ export function ProjectSelector() {
   const loadRepositories = async () => {
     try {
       setLoading(true)
-      const reposList = await githubMCPClient.listRepositories()
+      const response = await fetch('/api/repositories')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to load repositories')
+      }
+      const reposList = await response.json()
       setRepos(reposList)
     } catch (error: any) {
       setError(error.message || 'Failed to load repositories')

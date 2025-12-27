@@ -4,6 +4,7 @@ import { getProject, getProjectPlan, getPlanSteps, getLatestSnapshot, createAlig
 import { AlignmentChecker } from '@/lib/alignment/checker'
 import { createRepoSnapshot } from '@/lib/db/queries'
 import { SnapshotManager } from '@/lib/alignment/snapshot-manager'
+import { createUserMCPClient } from '@/lib/github/mcp-client'
 
 export async function POST(
   request: NextRequest,
@@ -54,7 +55,8 @@ export async function POST(
     }
 
     // Get or create snapshot
-    const snapshotManager = new SnapshotManager()
+    const mcpClient = await createUserMCPClient()
+    const snapshotManager = new SnapshotManager(mcpClient)
     const snapshot = await snapshotManager.getOrCreateSnapshot(project)
 
     // Perform alignment check

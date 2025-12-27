@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getProjects, createProject, updateProject } from '@/lib/db/queries'
-import { githubMCPClient } from '@/lib/github/mcp-client'
+import { createUserMCPClient } from '@/lib/github/mcp-client'
 import crypto from 'crypto'
 
 export async function GET() {
@@ -54,7 +54,8 @@ export async function POST(request: NextRequest) {
 
     // Verify repo exists and user has access
     try {
-      await githubMCPClient.getRepository(owner, repo)
+      const mcpClient = await createUserMCPClient()
+      await mcpClient.getRepository(owner, repo)
     } catch (error) {
       return NextResponse.json(
         { error: 'Repository not found or access denied' },
@@ -80,7 +81,8 @@ export async function POST(request: NextRequest) {
     const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/projects/${project.id}/webhook`
     let webhookId: string | null = null
     try {
-      const webhook = await githubMCPClient.createWebhook(
+      const mcpClient = await createUserMCPClient()
+      const webhook = await mcpClient.createWebhook(
         owner,
         repo,
         webhookUrl,
