@@ -76,7 +76,7 @@ export function LoginForm() {
         </form>
         <div className="mt-4 text-center text-sm">
           <a href="/register" className="text-primary hover:underline">
-            Don't have an account? Register
+            Don&apos;t have an account? Register
           </a>
         </div>
       </CardContent>

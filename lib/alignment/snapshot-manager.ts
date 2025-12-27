@@ -113,9 +113,9 @@ export class SnapshotManager {
         .map((f: any) => f.path)
     )
 
-    const addedFiles = Array.from(newFiles).filter(f => !oldFiles.has(f))
-    const removedFiles = Array.from(oldFiles).filter(f => !newFiles.has(f))
-    const modifiedFiles = Array.from(newFiles).filter(f => oldFiles.has(f))
+    const addedFiles = Array.from(newFiles).filter((f) => !oldFiles.has(f as string)) as string[]
+    const removedFiles = Array.from(oldFiles).filter((f) => !newFiles.has(f as string)) as string[]
+    const modifiedFiles = Array.from(newFiles).filter((f) => oldFiles.has(f as string)) as string[]
 
     const oldCommitSha = oldSnapshot.snapshot_data.commitSha
     const newCommits = newSnapshot.snapshot_data.recentCommits.filter(

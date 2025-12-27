@@ -56,6 +56,17 @@ export interface Commit {
   created_at: string
 }
 
+export interface AlignmentCheck {
+  id: string
+  project_id: string
+  plan_step_id: string
+  commit_id: string | null
+  repo_snapshot_id: string
+  alignment_result: 'aligned' | 'misaligned' | 'partial'
+  analysis_data: any
+  created_at: string
+}
+
 /**
  * Get all projects for the current user
  */
@@ -314,6 +325,23 @@ export async function updateCommitAlignment(
       reviewed_at: reviewed ? new Date().toISOString() : null,
     })
     .eq('id', commitId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+/**
+ * Create an alignment check record
+ */
+export async function createAlignmentCheck(
+  check: Omit<AlignmentCheck, 'id' | 'created_at'>
+): Promise<AlignmentCheck> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('alignment_checks')
+    .insert(check)
     .select()
     .single()
 

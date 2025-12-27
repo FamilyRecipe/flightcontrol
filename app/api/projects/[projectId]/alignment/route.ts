@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getProject, getProjectPlan, getPlanSteps, getLatestSnapshot } from '@/lib/db/queries'
+import { getProject, getProjectPlan, getPlanSteps, getLatestSnapshot, createAlignmentCheck } from '@/lib/db/queries'
 import { AlignmentChecker } from '@/lib/alignment/checker'
 import { createRepoSnapshot } from '@/lib/db/queries'
 import { SnapshotManager } from '@/lib/alignment/snapshot-manager'
@@ -61,10 +61,20 @@ export async function POST(
     const checker = new AlignmentChecker()
     const result = await checker.checkAlignment(currentStep, snapshot)
 
-    // Store alignment check result (would need to create alignment_checks table record)
-    // For now, just return the result
+    // Store alignment check result
+    const alignmentCheck = await createAlignmentCheck({
+      project_id: project.id,
+      plan_step_id: currentStep.id,
+      commit_id: null, // Can be updated later if checking specific commit
+      repo_snapshot_id: snapshot.id,
+      alignment_result: result.alignmentResult.overall,
+      analysis_data: result,
+    })
 
-    return NextResponse.json(result)
+    return NextResponse.json({
+      ...result,
+      checkId: alignmentCheck.id,
+    })
   } catch (error: any) {
     console.error('Error performing alignment check:', error)
     return NextResponse.json(

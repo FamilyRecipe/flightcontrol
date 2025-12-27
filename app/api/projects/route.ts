@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getProjects, createProject } from '@/lib/db/queries'
+import { getProjects, createProject, updateProject } from '@/lib/db/queries'
 import { githubMCPClient } from '@/lib/github/mcp-client'
 import crypto from 'crypto'
 
@@ -64,35 +64,38 @@ export async function POST(request: NextRequest) {
 
     // Generate webhook secret
     const webhookSecret = crypto.randomBytes(32).toString('hex')
-    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/projects/[projectId]/webhook`
 
-    // Create webhook (will be updated with actual project ID after creation)
-    let webhookId: string | null = null
-    try {
-      const webhook = await githubMCPClient.createWebhook(
-        owner,
-        repo,
-        webhookUrl.replace('[projectId]', 'placeholder'),
-        webhookSecret
-      )
-      webhookId = webhook.id
-    } catch (error) {
-      console.warn('Failed to create webhook:', error)
-      // Continue without webhook - user can configure manually
-    }
-
-    // Create project
+    // Create project first to get the actual project ID
     const project = await createProject({
       user_id: user.id,
       github_repo_owner: owner,
       github_repo_name: repo,
       github_repo_full_name,
       webhook_secret: webhookSecret,
-      webhook_id: webhookId,
+      webhook_id: null,
       experimental_mode: false,
     })
 
-    return NextResponse.json(project, { status: 201 })
+    // Now create webhook with actual project ID
+    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/projects/${project.id}/webhook`
+    let webhookId: string | null = null
+    try {
+      const webhook = await githubMCPClient.createWebhook(
+        owner,
+        repo,
+        webhookUrl,
+        webhookSecret
+      )
+      webhookId = webhook.id
+      
+      // Update project with webhook ID
+      const updatedProject = await updateProject(project.id, { webhook_id: webhookId })
+      return NextResponse.json(updatedProject, { status: 201 })
+    } catch (error) {
+      console.warn('Failed to create webhook:', error)
+      // Return project without webhook - user can configure manually
+      return NextResponse.json(project, { status: 201 })
+    }
   } catch (error: any) {
     console.error('Error creating project:', error)
     return NextResponse.json(
