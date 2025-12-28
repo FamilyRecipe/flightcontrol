@@ -46,24 +46,26 @@ export class GitHubAPIClient {
 
   constructor(accessToken?: string) {
     // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:47',message:'GitHubAPIClient constructor entry',data:{hasAccessTokenParam:!!accessToken,hasEnvToken:!!process.env.GITHUB_ACCESS_TOKEN},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:47',message:'GitHubAPIClient constructor entry',data:{hasAccessTokenParam:!!accessToken,hasEnvToken:!!process.env.GITHUB_ACCESS_TOKEN},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
     // #endregion
     this.accessToken = accessToken || process.env.GITHUB_ACCESS_TOKEN || ''
     // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:50',message:'GitHubAPIClient token check',data:{hasToken:!!this.accessToken,tokenLength:this.accessToken.length},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:50',message:'GitHubAPIClient token check',data:{hasToken:!!this.accessToken,tokenLength:this.accessToken.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
     // #endregion
-    if (!this.accessToken) {
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:52',message:'GitHubAPIClient token missing error',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
-      throw new Error('GitHub access token not configured. Set GITHUB_ACCESS_TOKEN environment variable.')
-    }
+    // Note: Token validation moved to request methods to allow type-only imports
+    // The token will be validated when making actual API calls
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    if (!this.accessToken) {
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:63',message:'GitHubAPIClient token validation on request',data:{endpoint},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      throw new Error('GitHub access token not configured. Set GITHUB_ACCESS_TOKEN environment variable or use createUserGitHubClient().')
+    }
     const url = `${this.baseUrl}${endpoint}`
     // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:54',message:'GitHub API request start',data:{endpoint,method:options.method||'GET'},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:68',message:'GitHub API request start',data:{endpoint,method:options.method||'GET'},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'C'})}).catch(()=>{});
     // #endregion
     const response = await fetch(url, {
       ...options,
@@ -82,7 +84,7 @@ export class GitHubAPIClient {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: response.statusText }))
       // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:71',message:'GitHub API error',data:{status:response.status,errorMessage:error.message||response.statusText,endpoint},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:71',message:'GitHub API error',data:{status:response.status,errorMessage:error.message||response.statusText,endpoint,fullError:JSON.stringify(error).substring(0,500),errors:error.errors?JSON.stringify(error.errors).substring(0,500):null},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
       // #endregion
       throw new Error(`GitHub API error: ${error.message || response.statusText} (${response.status})`)
     }
@@ -167,22 +169,32 @@ export class GitHubAPIClient {
    * Create a webhook for a repository
    */
   async createWebhook(owner: string, repo: string, webhookUrl: string, secret: string): Promise<{ id: string }> {
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:169',message:'createWebhook entry',data:{owner,repo,webhookUrl,hasSecret:!!secret,secretLength:secret.length,isLocalhost:webhookUrl.includes('localhost')||webhookUrl.includes('127.0.0.1')},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A,C'})}).catch(()=>{});
+    // #endregion
+    const payload = {
+      name: 'web',
+      active: true,
+      events: ['push'],
+      config: {
+        url: webhookUrl,
+        content_type: 'json',
+        secret: secret,
+      },
+    }
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:180',message:'createWebhook payload',data:{payload:JSON.stringify(payload)},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
     const data = await this.request<{ id: number }>(`/repos/${owner}/${repo}/hooks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        name: 'web',
-        active: true,
-        events: ['push'],
-        config: {
-          url: webhookUrl,
-          content_type: 'json',
-          secret: secret,
-        },
-      }),
+      body: JSON.stringify(payload),
     })
+    // #region agent log
+    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/github/api-client.ts:192',message:'createWebhook success',data:{webhookId:data.id},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
 
     return { id: data.id.toString() }
   }

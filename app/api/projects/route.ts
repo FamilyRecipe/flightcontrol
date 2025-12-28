@@ -115,13 +115,24 @@ export async function POST(request: NextRequest) {
 
     // Now create webhook with actual project ID
     // #region agent log
-    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:91',message:'Before webhook URL construction',data:{NEXT_PUBLIC_APP_URL:process.env.NEXT_PUBLIC_APP_URL,hasEnvVar:!!process.env.NEXT_PUBLIC_APP_URL,projectId:project.id},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'E'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:91',message:'Before webhook URL construction',data:{NEXT_PUBLIC_APP_URL:process.env.NEXT_PUBLIC_APP_URL,hasEnvVar:!!process.env.NEXT_PUBLIC_APP_URL,projectId:project.id},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
     // #endregion
     const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/projects/${project.id}/webhook`
+    const isLocalhost = webhookUrl.includes('localhost') || webhookUrl.includes('127.0.0.1')
     let webhookId: string | null = null
+    
+    // Skip webhook creation in development (GitHub rejects localhost URLs)
+    if (isLocalhost) {
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:96',message:'Skipping webhook creation for localhost',data:{webhookUrl,reason:'GitHub does not accept localhost URLs for webhooks'},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      console.warn('Skipping webhook creation: GitHub does not accept localhost URLs. Configure webhook manually in production.')
+      return NextResponse.json(project, { status: 201 })
+    }
+    
     try {
       // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:95',message:'Before createWebhook',data:{webhookUrl,owner,repo},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A,C'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:102',message:'Before createWebhook',data:{webhookUrl,owner,repo},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A,C'})}).catch(()=>{});
       // #endregion
       const githubClient = await createUserGitHubClient()
       const webhook = await githubClient.createWebhook(
@@ -132,20 +143,20 @@ export async function POST(request: NextRequest) {
       )
       webhookId = webhook.id
       // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:104',message:'After createWebhook success',data:{webhookId},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A,C'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:111',message:'After createWebhook success',data:{webhookId},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A,C'})}).catch(()=>{});
       // #endregion
       // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:107',message:'Before updateProject',data:{projectId:project.id,webhookId},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:114',message:'Before updateProject',data:{projectId:project.id,webhookId},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
       // #endregion
       // Update project with webhook ID
       const updatedProject = await updateProject(project.id, { webhook_id: webhookId })
       // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:110',message:'After updateProject success',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:117',message:'After updateProject success',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
       // #endregion
       return NextResponse.json(updatedProject, { status: 201 })
     } catch (error) {
       // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:113',message:'Webhook creation error',data:{errorMessage:error instanceof Error?error.message:String(error),errorType:error instanceof Error?error.constructor.name:'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A,C'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/projects/route.ts:120',message:'Webhook creation error',data:{errorMessage:error instanceof Error?error.message:String(error),errorType:error instanceof Error?error.constructor.name:'unknown',webhookUrl,isLocalhost:webhookUrl.includes('localhost')||webhookUrl.includes('127.0.0.1'),stack:error instanceof Error?error.stack?.substring(0,500):null},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A,C'})}).catch(()=>{});
       // #endregion
       console.warn('Failed to create webhook:', error)
       // Return project without webhook - user can configure manually
