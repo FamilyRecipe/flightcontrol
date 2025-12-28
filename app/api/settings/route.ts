@@ -32,10 +32,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { github_mcp_server_url } = body
+    const { github_access_token } = body
 
     const settings = await upsertUserSettings({
-      github_mcp_server_url: github_mcp_server_url || null,
+      github_access_token: github_access_token || null,
     })
 
     return NextResponse.json(settings)

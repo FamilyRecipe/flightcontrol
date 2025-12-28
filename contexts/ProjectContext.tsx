@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import type { Project } from '@/lib/db/queries'
 
 interface ProjectContextType {
@@ -23,6 +24,8 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([])
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
   const [loading, setLoading] = useState(true)
+  const pathname = usePathname()
+  const router = useRouter()
 
   const refreshProjects = async () => {
     try {
@@ -38,16 +41,44 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // Sync currentProject with URL
+  useEffect(() => {
+    if (!pathname || projects.length === 0) return
+
+    const projectMatch = pathname.match(/^\/projects\/([^/]+)/)
+    if (projectMatch) {
+      const projectId = projectMatch[1]
+      const project = projects.find((p) => p.id === projectId)
+      if (project && project.id !== currentProject?.id) {
+        setCurrentProject(project)
+      } else if (!project && currentProject) {
+        setCurrentProject(null)
+      }
+    } else if (currentProject) {
+      setCurrentProject(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, projects])
+
   useEffect(() => {
     refreshProjects()
   }, [])
+
+  const handleSetCurrentProject = (project: Project | null) => {
+    setCurrentProject(project)
+    if (project) {
+      router.push(`/projects/${project.id}`)
+    } else {
+      router.push('/')
+    }
+  }
 
   return (
     <ProjectContext.Provider
       value={{
         projects,
         currentProject,
-        setCurrentProject,
+        setCurrentProject: handleSetCurrentProject,
         loading,
         refreshProjects,
       }}

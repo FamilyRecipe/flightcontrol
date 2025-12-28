@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createUserMCPClient } from '@/lib/github/mcp-client'
+import { createUserGitHubClient } from '@/lib/github/api-client'
 
 export async function GET() {
   try {
@@ -11,8 +11,8 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const mcpClient = await createUserMCPClient()
-    const repositories = await mcpClient.listRepositories()
+    const githubClient = await createUserGitHubClient()
+    const repositories = await githubClient.listRepositories()
 
     return NextResponse.json(repositories)
   } catch (error: any) {

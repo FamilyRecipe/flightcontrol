@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -14,6 +14,17 @@ export function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  // Check for error in URL params (from callback redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const urlError = params.get('error')
+    if (urlError) {
+      setError(decodeURIComponent(urlError))
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,12 +52,12 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Login</CardTitle>
+        <CardTitle className="text-2xl">Welcome back</CardTitle>
         <CardDescription>Sign in to your FlightControl account</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -62,21 +73,25 @@ export function LoginForm() {
             <Input
               id="password"
               type="password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
           {error && (
-            <div className="text-sm text-red-500">{error}</div>
+            <div className="rounded-md bg-destructive/10 px-2.5 py-1.5 text-sm text-destructive">
+              {error}
+            </div>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
-        <div className="mt-4 text-center text-sm">
-          <a href="/register" className="text-primary hover:underline">
-            Don&apos;t have an account? Register
+        <div className="mt-6 text-center text-sm">
+          <span className="text-muted-foreground">Don&apos;t have an account? </span>
+          <a href="/register" className="font-medium text-primary hover:underline">
+            Sign up
           </a>
         </div>
       </CardContent>

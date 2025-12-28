@@ -2,37 +2,34 @@
 
 import { useProject } from '@/contexts/ProjectContext'
 import { ProjectCard } from './ProjectCard'
-import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/templates/states/EmptyState'
+import { LoadingState } from '@/components/templates/states/LoadingState'
 import { Plus } from 'lucide-react'
-import Link from 'next/link'
 
 export function ProjectList() {
   const { projects, loading } = useProject()
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-muted-foreground">Loading projects...</div>
-      </div>
-    )
+    return <LoadingState message="Loading projects..." />
   }
 
   if (projects.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-4 border-2 border-dashed rounded-lg">
-        <div className="text-center space-y-2">
-          <p className="text-lg font-medium">No projects yet</p>
-          <p className="text-sm text-muted-foreground">
-            Get started by creating your first project
-          </p>
-        </div>
-        <Link href="/projects/new">
-          <Button size="lg">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Your First Project
-          </Button>
-        </Link>
-      </div>
+      <>
+        <EmptyState
+          icon={Plus}
+          title="No projects yet"
+          description="Connect a GitHub repository to start tracking alignment between your code and project plans. Create your first project to get started."
+          action={{
+            label: 'Create Your First Project',
+            href: '/projects/new',
+          }}
+          variant="card"
+        />
+        <p className="text-xs text-muted-foreground mt-4 text-center">
+          Need help? <a href="/settings" className="text-primary hover:underline">Configure GitHub integration</a>
+        </p>
+      </>
     )
   }
 

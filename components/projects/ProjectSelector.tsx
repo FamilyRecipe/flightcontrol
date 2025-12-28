@@ -98,17 +98,19 @@ export function ProjectSelector() {
         <CardTitle>Select Repository</CardTitle>
         <CardDescription>Choose a GitHub repository to track</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {error && (
-          <div className="text-sm text-red-500">{error}</div>
+          <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive border border-destructive/20">
+            {error}
+          </div>
         )}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label htmlFor="repo">Repository</Label>
           <select
             id="repo"
             value={selectedRepo}
             onChange={(e) => setSelectedRepo(e.target.value)}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
+            className="flex h-8 w-full rounded-md border border-border bg-card px-3 py-1.5 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background"
           >
             <option value="">Select a repository</option>
             {repos.map((repo) => (

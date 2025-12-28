@@ -24,7 +24,7 @@ An alignment tracking tool that continuously compares GitHub repository state to
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 18+ and pnpm
 - Supabase account and project
 - OpenAI API key
 - GitHub MCP server (or configure GitHub API access)
@@ -39,7 +39,7 @@ cd flightcontrol
 
 2. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
 3. Set up environment variables:
@@ -60,7 +60,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 5. Run the development server:
 ```bash
-npm run dev
+pnpm dev
 ```
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser
@@ -118,14 +118,14 @@ flightcontrol/
 ### Running Tests
 
 ```bash
-npm run lint
+pnpm lint
 ```
 
 ### Building for Production
 
 ```bash
-npm run build
-npm start
+pnpm build
+pnpm start
 ```
 
 ## Deployment

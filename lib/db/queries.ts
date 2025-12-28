@@ -70,7 +70,7 @@ export interface AlignmentCheck {
 export interface UserSettings {
   id: string
   user_id: string
-  github_mcp_server_url: string | null
+  github_access_token: string | null
   created_at: string
   updated_at: string
 }
@@ -111,12 +111,19 @@ export async function getProject(projectId: string): Promise<Project | null> {
  * Create a new project
  */
 export async function createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<Project> {
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/db/queries.ts:113',message:'createProject entry',data:{userId:project.user_id,repoOwner:project.github_repo_owner,repoName:project.github_repo_name},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('projects')
     .insert(project)
     .select()
     .single()
+
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/db/queries.ts:121',message:'createProject result',data:{hasData:!!data,hasError:!!error,errorCode:error?.code,errorMessage:error?.message,errorDetails:error?.details},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
 
   if (error) throw error
   return data
@@ -126,6 +133,9 @@ export async function createProject(project: Omit<Project, 'id' | 'created_at' |
  * Update a project
  */
 export async function updateProject(projectId: string, updates: Partial<Project>): Promise<Project> {
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/db/queries.ts:128',message:'updateProject entry',data:{projectId,updateKeys:Object.keys(updates)},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('projects')
@@ -133,6 +143,10 @@ export async function updateProject(projectId: string, updates: Partial<Project>
     .eq('id', projectId)
     .select()
     .single()
+
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/db/queries.ts:137',message:'updateProject result',data:{hasData:!!data,hasError:!!error,errorCode:error?.code,errorMessage:error?.message,errorDetails:error?.details},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
 
   if (error) throw error
   return data
@@ -361,8 +375,15 @@ export async function createAlignmentCheck(
  * Get user settings
  */
 export async function getUserSettings(): Promise<UserSettings | null> {
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/db/queries.ts:363',message:'getUserSettings entry',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/db/queries.ts:368',message:'getUserSettings user check',data:{hasUser:!!user,userId:user?.id||null},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
   
   if (!user) return null
 
@@ -371,6 +392,10 @@ export async function getUserSettings(): Promise<UserSettings | null> {
     .select('*')
     .eq('user_id', user.id)
     .single()
+
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/f5b31e45-a426-49ee-8b7d-0ba1d65d26a2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/db/queries.ts:377',message:'getUserSettings query result',data:{hasData:!!data,hasError:!!error,errorCode:error?.code,errorMessage:error?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'B'})}).catch(()=>{});
+  // #endregion
 
   if (error) {
     if (error.code === 'PGRST116') return null
@@ -383,7 +408,7 @@ export async function getUserSettings(): Promise<UserSettings | null> {
  * Create or update user settings
  */
 export async function upsertUserSettings(settings: {
-  github_mcp_server_url?: string | null
+  github_access_token?: string | null
 }): Promise<UserSettings> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -22,7 +22,7 @@ export function RegisterForm() {
 
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -32,8 +32,17 @@ export function RegisterForm() {
 
       if (error) throw error
 
-      router.push('/')
-      router.refresh()
+      // Check if email confirmation is required
+      if (data.user && !data.session) {
+        // Email confirmation required
+        setError(null)
+        alert('Please check your email to confirm your account before signing in.')
+        router.push('/login')
+      } else if (data.session) {
+        // User is immediately logged in (email confirmation disabled)
+        router.push('/')
+        router.refresh()
+      }
     } catch (error: any) {
       setError(error.message || 'An error occurred')
     } finally {
@@ -44,12 +53,12 @@ export function RegisterForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Register</CardTitle>
-        <CardDescription>Create a new FlightControl account</CardDescription>
+        <CardTitle className="text-2xl">Create an account</CardTitle>
+        <CardDescription>Sign up to get started with FlightControl</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -65,6 +74,7 @@ export function RegisterForm() {
             <Input
               id="password"
               type="password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -72,15 +82,18 @@ export function RegisterForm() {
             />
           </div>
           {error && (
-            <div className="text-sm text-red-500">{error}</div>
+            <div className="rounded-md bg-destructive/10 px-2.5 py-1.5 text-sm text-destructive">
+              {error}
+            </div>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Creating account...' : 'Create account'}
           </Button>
         </form>
-        <div className="mt-4 text-center text-sm">
-          <a href="/login" className="text-primary hover:underline">
-            Already have an account? Login
+        <div className="mt-6 text-center text-sm">
+          <span className="text-muted-foreground">Already have an account? </span>
+          <a href="/login" className="font-medium text-primary hover:underline">
+            Sign in
           </a>
         </div>
       </CardContent>

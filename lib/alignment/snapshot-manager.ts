@@ -1,5 +1,5 @@
 import { RepoAnalyzer } from '@/lib/github/analyzer'
-import { GitHubMCPClient } from '@/lib/github/mcp-client'
+import { GitHubAPIClient } from '@/lib/github/api-client'
 import { createRepoSnapshot, getLatestSnapshot } from '@/lib/db/queries'
 import type { Project } from '@/lib/db/queries'
 
@@ -15,8 +15,8 @@ export interface SnapshotOptions {
 export class SnapshotManager {
   private analyzer: RepoAnalyzer
 
-  constructor(mcpClient: GitHubMCPClient) {
-    this.analyzer = new RepoAnalyzer(mcpClient)
+  constructor(githubClient: GitHubAPIClient) {
+    this.analyzer = new RepoAnalyzer(githubClient)
   }
 
   /**

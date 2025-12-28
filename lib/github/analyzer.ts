@@ -1,4 +1,4 @@
-import { GitHubMCPClient } from './mcp-client'
+import { GitHubAPIClient } from './api-client'
 
 export interface RepoStructure {
   path: string
@@ -30,9 +30,9 @@ export interface RepoAnalysis {
  * Analyzes repository state including file structure, key files, and commit history
  */
 export class RepoAnalyzer {
-  private client: GitHubMCPClient
+  private client: GitHubAPIClient
 
-  constructor(client: GitHubMCPClient) {
+  constructor(client: GitHubAPIClient) {
     this.client = client
   }
 

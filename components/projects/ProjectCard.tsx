@@ -13,25 +13,27 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link href={`/projects/${project.id}`}>
-      <Card className="transition-all hover:bg-accent cursor-pointer h-full">
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <FolderGit2 className="h-5 w-5 text-muted-foreground" />
+      <Card className="group transition-all hover:border-primary/50 hover:shadow-md cursor-pointer h-full">
+        <CardHeader className="pb-2">
+          <div className="flex items-start justify-between mb-1.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+              <FolderGit2 className="h-5 w-5 text-primary" />
+            </div>
             {project.experimental_mode && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs border-primary/30 text-primary">
                 Experimental
               </Badge>
             )}
           </div>
-          <CardTitle className="mt-2">{project.github_repo_name}</CardTitle>
-          <CardDescription className="text-xs">
+          <CardTitle className="text-sm font-semibold leading-tight">{project.github_repo_name}</CardTitle>
+          <CardDescription className="text-xs mt-0.5">
             {project.github_repo_owner}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Clock className="h-3 w-3" />
-            {new Date(project.created_at).toLocaleDateString()}
+            <span>Created {new Date(project.created_at).toLocaleDateString()}</span>
           </div>
         </CardContent>
       </Card>

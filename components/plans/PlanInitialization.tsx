@@ -100,17 +100,17 @@ export function PlanInitialization({
             Create a plan for tracking your project progress
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+        <CardContent className="space-y-3">
+          <div className="grid gap-3 md:grid-cols-2">
             <Card
-              className="cursor-pointer hover:bg-accent transition-colors"
+              className="group cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
               onClick={() => setMode('ai')}
             >
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5" />
-                  AI Generation
-                </CardTitle>
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors mb-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
+                <CardTitle className="flex items-center gap-2">AI Generation</CardTitle>
                 <CardDescription>
                   Let AI analyze your repository and generate a plan automatically
                 </CardDescription>
@@ -118,14 +118,14 @@ export function PlanInitialization({
             </Card>
 
             <Card
-              className="cursor-pointer hover:bg-accent transition-colors"
+              className="group cursor-pointer transition-all hover:border-primary/50 hover:shadow-md"
               onClick={() => setMode('manual')}
             >
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Manual Creation
-                </CardTitle>
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors mb-1.5">
+                  <FileText className="h-5 w-5 text-primary" />
+                </div>
+                <CardTitle className="flex items-center gap-2">Manual Creation</CardTitle>
                 <CardDescription>
                   Create a plan manually and add steps yourself
                 </CardDescription>
@@ -146,9 +146,9 @@ export function PlanInitialization({
             Analyzing your repository to generate a project plan
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {error && (
-            <div className="text-sm text-red-500 bg-red-50 p-3 rounded">
+            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive border border-destructive/20">
               {error}
             </div>
           )}
@@ -194,9 +194,9 @@ export function PlanInitialization({
           Enter the details for your project plan
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
         {error && (
-          <div className="text-sm text-red-500 bg-red-50 p-3 rounded">
+          <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive border border-destructive/20">
             {error}
           </div>
         )}

@@ -34,17 +34,19 @@ export function Sidebar({ user }: SidebarProps) {
   }
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-background">
+    <div className="flex h-screen w-56 flex-col border-r border-border bg-background">
       {/* Logo */}
-      <div className="flex h-16 items-center border-b px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <FolderGit2 className="h-6 w-6" />
-          <span className="text-xl font-bold">FlightControl</span>
+      <div className="flex h-14 items-center border-b border-border px-4">
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
+            <FolderGit2 className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <span className="text-lg font-semibold tracking-tight">FlightControl</span>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-0.5 p-2">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
@@ -54,10 +56,10 @@ export function Sidebar({ user }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-2 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-accent text-accent-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  ? 'bg-primary/10 text-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
               )}
             >
               <Icon className="h-4 w-4" />
@@ -68,9 +70,9 @@ export function Sidebar({ user }: SidebarProps) {
       </nav>
 
       {/* User Section */}
-      <div className="border-t p-4">
-        <div className="mb-2 flex items-center gap-3 px-3 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-medium">
+      <div className="border-t border-border p-3">
+        <div className="mb-2 flex items-center gap-2 rounded-md px-2.5 py-1.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-sm font-medium text-primary">
             {user.email?.[0]?.toUpperCase() || 'U'}
           </div>
           <div className="flex-1 overflow-hidden">
@@ -79,7 +81,7 @@ export function Sidebar({ user }: SidebarProps) {
         </div>
         <button
           onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         >
           <LogOut className="h-4 w-4" />
           Sign out

@@ -100,21 +100,21 @@ export function StepEditor({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Step</DialogTitle>
+          <DialogTitle className="text-xl">Edit Step</DialogTitle>
           <DialogDescription>
-            Update the step details and status
+            Update the step details, acceptance criteria, and status
           </DialogDescription>
         </DialogHeader>
         <DialogClose onClose={() => onOpenChange(false)} />
 
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
+        <div className="space-y-4 py-3">
+          <div className="space-y-1.5">
             <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Step title"
+              placeholder="Enter step title"
             />
           </div>
 
@@ -124,23 +124,26 @@ export function StepEditor({
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Step description"
-              rows={4}
+              placeholder="Describe what this step involves"
+              rows={3}
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="acceptance">Acceptance Criteria</Label>
             <Textarea
               id="acceptance"
               value={acceptanceCriteria}
               onChange={(e) => setAcceptanceCriteria(e.target.value)}
-              placeholder="What needs to be completed for this step?"
-              rows={4}
+              placeholder="Define what needs to be completed for this step to be considered done"
+              rows={3}
             />
+            <p className="text-xs text-muted-foreground">
+              Optional: Specify the conditions that must be met for this step to be complete
+            </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="status">Status</Label>
             <Select
               id="status"
@@ -155,7 +158,7 @@ export function StepEditor({
           </div>
 
           {error && (
-            <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
+            <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive border border-destructive/20">
               {error}
             </div>
           )}
